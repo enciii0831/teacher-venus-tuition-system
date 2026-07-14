@@ -1,0 +1,4 @@
+server-3000*.log
+*.tar.gz
+.agents/
+.git-onedrive-placeholder/
