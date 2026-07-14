@@ -15,6 +15,7 @@ export default { async fetch(request) {
     'content-type': 'text/html; charset=utf-8',
     'cache-control': 'no-store',
     'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-robots-tag': 'noindex, nofollow, noarchive, nosnippet',
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'DENY',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',

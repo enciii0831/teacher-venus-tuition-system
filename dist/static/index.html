@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
   <meta name="description" content="Offline tuition fee, class and attendance records for Teacher VENUS">
   <title>Teacher VENUS Tuition Fee Management System</title>
   <style>
@@ -504,7 +505,7 @@
           <div class="page-head"><div><h2>Users</h2><p>One Owner and one Co-owner share all workspace data</p></div></div>
           <div class="role-note" id="roleAccessNote">Loading access level…</div>
           <div class="card" style="margin-top:18px"><div class="card-head"><div><h3>Workspace Members</h3><p>No complex permission switches</p></div></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
-          <div class="card" id="inviteCard" data-owner-only style="margin-top:18px"><div class="card-head"><div><h3>Invite Co-owner</h3><p>Only the configured friend account can be invited</p></div></div><form id="inviteForm" class="card-body"><div class="form-grid"><div><label for="inviteName">Name</label><input id="inviteName" value="Co-owner" maxlength="100"></div><div><label for="inviteEmail">Email</label><input type="email" id="inviteEmail" value="kxnrnlxm@gmail.com" readonly></div></div><button type="submit" class="btn btn-primary" style="margin-top:14px" id="inviteBtn">Send Invitation</button></form></div>
+          <div class="card" id="inviteCard" data-owner-only style="margin-top:18px"><div class="card-head"><div><h3>Invite Co-owner</h3><p>Only the configured friend account can be invited</p></div></div><form id="inviteForm" class="card-body"><div class="form-grid"><div><label for="inviteName">Name</label><input id="inviteName" value="Co-owner" maxlength="100"></div><div><label for="inviteEmail">Email</label><input type="email" id="inviteEmail" placeholder="Co-owner email" autocomplete="email" required></div></div><button type="submit" class="btn btn-primary" style="margin-top:14px" id="inviteBtn">Send Invitation</button></form></div>
         </section>
 
         <section class="page" id="page-audit">
@@ -612,8 +613,6 @@
     const STORAGE_KEY = 'teacherSkylerTuitionData.v1';
     const SUPABASE_URL = 'https://sunkovtufoifsvfmqwas.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_NQdtCvo-UhhNl1-3jSL1tQ_j7gJYMbK';
-    const OWNER_EMAIL = 'enciii0831@gmail.com';
-    const CO_OWNER_EMAIL = 'kxnrnlxm@gmail.com';
     const RECEIPT_PREFIX = 'VE';
     const SUBJECT_PRESETS = ['Biology', 'Chemistry', 'Physics', 'Science', 'Mathematics', 'English', 'Bahasa Melayu', 'Other'];
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -926,7 +925,6 @@
       event.preventDefault();
       const email = document.getElementById('loginEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
-      if (![OWNER_EMAIL,CO_OWNER_EMAIL].includes(email)) return showAuthMessage('This email is not invited to the workspace.', true);
       const button = document.getElementById('loginBtn'); button.disabled = true;
       const { error } = await sb.auth.signInWithPassword({ email, password });
       button.disabled = false;
@@ -935,7 +933,7 @@
 
     async function requestPasswordReset() {
       const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-      if (![OWNER_EMAIL,CO_OWNER_EMAIL].includes(email)) return showAuthMessage('Enter the invited Owner or Co-owner email first.', true);
+      if (!email) return showAuthMessage('Enter your invited email address first.', true);
       if (!sb) return showAuthMessage('Cloud connection is not ready. Refresh the page and try again.', true);
       try {
         showAuthMessage('Sending password reset email…');
@@ -983,7 +981,8 @@
       event.preventDefault();
       if (currentRole !== 'owner') return toast('Only the Owner can invite the Co-owner.', 'error');
       const button = document.getElementById('inviteBtn'); button.disabled = true;
-      const { data, error } = await sb.functions.invoke('invite-user', { body: { workspaceId: currentWorkspaceId, email: CO_OWNER_EMAIL, fullName: document.getElementById('inviteName').value.trim() || 'Co-owner' } });
+      const email = document.getElementById('inviteEmail').value.trim().toLowerCase();
+      const { data, error } = await sb.functions.invoke('invite-user', { body: { workspaceId: currentWorkspaceId, email, fullName: document.getElementById('inviteName').value.trim() || 'Co-owner' } });
       button.disabled = false;
       if (error || data?.error) return toast(data?.error || error.message, 'error');
       toast('Co-owner invitation sent successfully.'); renderUsers(); renderAuditLogs();
