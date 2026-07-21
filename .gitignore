@@ -1,4 +1,6 @@
 server-3000*.log
 *.tar.gz
+backups/
 .agents/
 .git-onedrive-placeholder/
+design-qa.md

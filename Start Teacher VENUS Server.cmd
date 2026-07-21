@@ -3,8 +3,7 @@ setlocal
 title Teacher VENUS Local Server - Keep This Window Open
 cd /d "%~dp0"
 
-set "PYTHON=C:\Users\encii\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
-if not exist "%PYTHON%" set "PYTHON=python"
+set "PYTHON=python"
 
 echo.
 echo Teacher VENUS website is starting...

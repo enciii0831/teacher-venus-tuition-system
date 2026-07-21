@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="description" content="Offline tuition fee, class and attendance records for Teacher VENUS">
+  <title>Teacher VENUS Tuition Fee Management System</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-logo">TV</div>
+      <h1>Teacher VENUS</h1>
+      <p>Sign in to the shared tuition and attendance workspace.</p>
+      <form id="loginForm">
+        <div><label class="required" for="loginEmail">Email</label><input type="email" id="loginEmail" autocomplete="email" required></div>
+        <div><label class="required" for="loginPassword">Password</label><input type="password" id="loginPassword" autocomplete="current-password" required minlength="6"></div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+        <button type="button" class="text-btn" id="forgotPasswordBtn">Forgot password?</button>
+      </form>
+      <form id="setPasswordForm" hidden>
+        <div><label class="required" for="newPassword">Set New Password</label><input type="password" id="newPassword" autocomplete="new-password" required minlength="8"></div>
+        <div><label class="required" for="confirmPassword">Confirm Password</label><input type="password" id="confirmPassword" autocomplete="new-password" required minlength="8"></div>
+        <button type="submit" class="btn btn-primary">Save Password</button>
+      </form>
+      <div class="auth-message" id="authMessage">Public registration is disabled. Only the Owner and invited Co-owner can sign in.</div>
+    </div>
+  </section>
+
+  <div class="app-shell" id="appShell" hidden>
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark">TS</div>
+        <div><strong>Tuition Fee<br>Management</strong><small>Teacher VENUS</small></div>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+        <button class="nav-btn" data-page="students"><span class="nav-icon">♙</span>Students</button>
+        <button class="nav-btn" data-page="classes"><span class="nav-icon">▤</span>Classes</button>
+        <button class="nav-btn" data-page="timetable"><span class="nav-icon">▦</span>Timetable</button>
+        <button class="nav-btn" data-page="attendance"><span class="nav-icon">✓</span>Attendance</button>
+        <button class="nav-btn" data-page="monthly"><span class="nav-icon">▣</span>Monthly Fees</button>
+        <button class="nav-btn" data-page="history"><span class="nav-icon">◷</span>Payment History</button>
+        <button class="nav-btn" data-page="users"><span class="nav-icon">♙</span>Users</button>
+        <button class="nav-btn" data-page="audit"><span class="nav-icon">≡</span>Audit Logs</button>
+        <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+        <button class="nav-btn" data-page="backup"><span class="nav-icon">⇅</span>Backup</button>
+      </nav>
+      <div class="sidebar-note"><div class="cloud-status" id="cloudStatus"><span class="cloud-dot"></span><span>Connecting to cloud</span></div><br>Shared Workspace · RLS protected</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+        <div><h1>Teacher VENUS Tuition Fee Management System</h1><p>Student, Tuition Fee and Attendance Management System</p></div>
+        <div class="user-menu"><div class="today-chip" id="todayChip"></div><div class="user-badge"><strong id="currentUserName">User</strong><span id="currentUserRole">Loading…</span></div><button class="btn btn-secondary btn-sm" id="logoutBtn">Sign Out</button></div>
+      </header>
+
+      <div class="content">
+        <section class="page active" id="page-dashboard">
+          <div class="page-head">
+            <div><h2>Dashboard</h2><p>Monthly fee summary and outstanding payments</p></div>
+            <div class="field-inline"><label for="dashboardMonth" style="margin:0">Month</label><input type="month" id="dashboardMonth"></div>
+          </div>
+          <div class="sample-banner" id="sampleBanner" hidden>
+            <div><strong>Welcome! Try the system with sample records.</strong><span>Loads three fictional students. You can delete them anytime.</span></div>
+            <button class="btn btn-primary" id="loadSampleBtn">＋ Load Sample Data</button>
+          </div>
+          <h3 class="section-title">Student Overview</h3>
+          <div class="compact-stats">
+            <div class="compact-stat"><span>Total Students</span><strong id="studentCountTotal">0</strong></div>
+            <div class="compact-stat"><span>Y1 Students</span><strong id="studentCountY1">0</strong></div>
+            <div class="compact-stat"><span>Y2 Students</span><strong id="studentCountY2">0</strong></div>
+            <div class="compact-stat"><span>Y3 Students</span><strong id="studentCountY3">0</strong></div>
+            <div class="compact-stat"><span>Y4 Students</span><strong id="studentCountY4">0</strong></div>
+            <div class="compact-stat"><span>Y5 Students</span><strong id="studentCountY5">0</strong></div>
+            <div class="compact-stat"><span>Y6 Students</span><strong id="studentCountY6">0</strong></div>
+            <div class="compact-stat"><span>F1 Students</span><strong id="studentCountF1">0</strong></div>
+            <div class="compact-stat"><span>F2 Students</span><strong id="studentCountF2">0</strong></div>
+            <div class="compact-stat"><span>F3 Students</span><strong id="studentCountF3">0</strong></div>
+            <div class="compact-stat"><span>F4 Students</span><strong id="studentCountF4">0</strong></div>
+            <div class="compact-stat"><span>F5 Students</span><strong id="studentCountF5">0</strong></div>
+          </div>
+          <h3 class="section-title">Fee Overview</h3>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Total Expected Fees</div><div class="stat-value" id="statExpected">RM0.00</div><div class="stat-sub">This month's receivable</div></div>
+            <div class="stat-card green"><div class="stat-label">Total Collected</div><div class="stat-value" id="statCollected">RM0.00</div><div class="stat-sub">Payments received</div></div>
+            <div class="stat-card red"><div class="stat-label">Total Outstanding</div><div class="stat-value" id="statOutstanding">RM0.00</div><div class="stat-sub">Balance remaining</div></div>
+            <div class="stat-card green"><div class="stat-label">Paid Students</div><div class="stat-value" id="statPaid">0</div><div class="stat-sub">Fully paid</div></div>
+            <div class="stat-card orange"><div class="stat-label">Partial Payment</div><div class="stat-value" id="statPartial">0</div><div class="stat-sub">Partially paid</div></div>
+            <div class="stat-card red"><div class="stat-label">Unpaid Students</div><div class="stat-value" id="statUnpaid">0</div><div class="stat-sub">No payment yet</div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div><h3>Payments Requiring Attention</h3><p>Unpaid and partially paid students</p></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Subjects</th><th>Total Fee</th><th>Amount Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody id="dashboardOutstandingBody"></tbody></table></div>
+          </div>
+          <h3 class="section-title">Attendance Overview · <span id="attendanceDashboardMonth"></span></h3>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Today's Classes</div><div class="stat-value" id="statTodayClasses">0</div><div class="stat-sub">Scheduled today</div></div>
+            <div class="stat-card orange"><div class="stat-label">Classes Pending Attendance</div><div class="stat-value" id="statPendingAttendance">0</div><div class="stat-sub">Today, not recorded</div></div>
+            <div class="stat-card"><div class="stat-label">Total Classes This Month</div><div class="stat-value" id="statMonthClasses">0</div><div class="stat-sub">Scheduled sessions</div></div>
+            <div class="stat-card green"><div class="stat-label">Present Students</div><div class="stat-value" id="statAttendancePresent">0</div><div class="stat-sub">Attendance records</div></div>
+            <div class="stat-card red"><div class="stat-label">Absent Students</div><div class="stat-value" id="statAttendanceAbsent">0</div><div class="stat-sub">Attendance records</div></div>
+            <div class="stat-card orange"><div class="stat-label">Late Students</div><div class="stat-value" id="statAttendanceLate">0</div><div class="stat-sub">Attendance records</div></div>
+            <div class="stat-card"><div class="stat-label">Excused Students</div><div class="stat-value" id="statAttendanceExcused">0</div><div class="stat-sub">Attendance records</div></div>
+            <div class="stat-card green"><div class="stat-label">Overall Attendance Rate</div><div class="stat-value" id="statAttendanceRate">0%</div><div class="stat-sub">Present ÷ total records</div></div>
+          </div>
+          <div class="card"><div class="card-head"><div><h3>Recent Absentees</h3><p>Latest absent, late and excused records</p></div></div><div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Class</th><th>Date</th><th>Status</th><th>Reason</th></tr></thead><tbody id="recentAbsenteesBody"></tbody></table></div></div>
+        </section>
+
+        <section class="page" id="page-students">
+          <div class="page-head">
+            <div><h2>Student Management</h2><p>Add, edit and manage student information</p></div>
+            <button class="btn btn-primary" id="addStudentBtn">＋ Add Student</button>
+          </div>
+          <div class="toolbar"><div class="search-wrap"><input class="search-box" id="studentSearch" placeholder="Search student, parent, phone or class"></div><div class="toolbar-group"><select id="studentStatusFilter" aria-label="Filter student status"><option value="all">All statuses</option><option>Active</option><option>Inactive</option><option>Stopped</option></select></div></div>
+          <div class="grade-filters" id="studentFormFilters" style="margin-bottom:18px"><button class="filter-chip active" data-form-filter="all">All</button><button class="filter-chip" data-form-filter="Y1">Y1</button><button class="filter-chip" data-form-filter="Y2">Y2</button><button class="filter-chip" data-form-filter="Y3">Y3</button><button class="filter-chip" data-form-filter="Y4">Y4</button><button class="filter-chip" data-form-filter="Y5">Y5</button><button class="filter-chip" data-form-filter="Y6">Y6</button><button class="filter-chip" data-form-filter="F1">F1</button><button class="filter-chip" data-form-filter="F2">F2</button><button class="filter-chip" data-form-filter="F3">F3</button><button class="filter-chip" data-form-filter="F4">F4</button><button class="filter-chip" data-form-filter="F5">F5</button></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Form</th><th>Subjects</th><th>Class</th><th>Parent Phone Number</th><th>Monthly Fee</th><th>Status</th><th>Action</th></tr></thead><tbody id="studentsBody"></tbody></table></div></div>
+        </section>
+
+        <section class="page" id="page-classes">
+          <div class="page-head"><div><h2>Classes</h2><p>Create class schedules and assign students</p></div><button class="btn btn-primary" id="addClassBtn">＋ Add Class</button></div>
+          <div class="toolbar"><div class="search-wrap"><input class="search-box" id="classSearch" placeholder="Search class, form or subject"></div><div class="toolbar-group"><select id="classStatusFilter"><option value="all">All statuses</option><option>Active</option><option>Inactive</option></select></div></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>Class Name</th><th>Form</th><th>Subject</th><th>Schedule</th><th>Monthly Fee</th><th>Students</th><th>Status</th><th>Action</th></tr></thead><tbody id="classesBody"></tbody></table></div></div>
+        </section>
+
+        <section class="page" id="page-timetable">
+          <div class="page-head"><div><h2>Timetable</h2><p>Weekly active class schedule</p></div><button class="btn btn-secondary" id="todayTimetableBtn">Today</button></div>
+          <div class="week-grid" id="timetableGrid"></div>
+        </section>
+
+        <section class="page" id="page-attendance">
+          <div class="page-head"><div><h2>Attendance</h2><p>Take attendance and review saved records</p></div></div>
+          <div class="tabs"><button class="tab-btn active" data-attendance-tab="take">Take Attendance</button><button class="tab-btn" data-attendance-tab="history">Attendance History</button></div>
+          <div class="attendance-panel active" id="attendancePanelTake">
+            <div class="card">
+              <div class="attendance-toolbar">
+                <div><label class="required" for="attendanceDate">Attendance Date</label><input type="date" id="attendanceDate"></div>
+                <div><label class="required" for="attendanceClass">Class</label><select id="attendanceClass"><option value="">Select class</option></select></div>
+                <div><label for="attendanceForm">Form</label><div class="readonly-box" id="attendanceForm">—</div></div>
+                <div><label for="attendanceSubject">Subject</label><div class="readonly-box" id="attendanceSubject">—</div></div>
+              </div>
+              <div class="attendance-actions"><button class="btn btn-success" id="markAllPresentBtn">✓ Mark All Present</button><button class="btn btn-primary" id="saveAttendanceBtn">Save Attendance</button><button class="btn btn-secondary" id="resetAttendanceBtn">Reset Attendance</button><button class="btn btn-secondary" id="printAttendanceBtn">▣ Print Attendance List</button></div>
+              <div class="attendance-list" id="attendanceList"></div>
+            </div>
+          </div>
+          <div class="attendance-panel" id="attendancePanelHistory">
+            <div class="card">
+              <div class="filters">
+                <div><span class="filter-label">Student</span><select id="attendanceHistoryStudent"><option value="all">All students</option></select></div>
+                <div><span class="filter-label">Form</span><select id="attendanceHistoryForm"><option value="all">All forms</option><option>Y1</option><option>Y2</option><option>Y3</option><option>Y4</option><option>Y5</option><option>Y6</option><option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option></select></div>
+                <div><span class="filter-label">Class</span><select id="attendanceHistoryClass"><option value="all">All classes</option></select></div>
+                <div><span class="filter-label">Subject</span><select id="attendanceHistorySubject"><option value="all">All subjects</option></select></div>
+                <div><span class="filter-label">Date</span><input type="date" id="attendanceHistoryDate"></div>
+                <div><span class="filter-label">Month</span><input type="month" id="attendanceHistoryMonth"></div>
+                <div><span class="filter-label">Status</span><select id="attendanceHistoryStatus"><option value="all">All statuses</option><option>Present</option><option>Absent</option><option>Late</option><option>Excused</option></select></div>
+                <div style="align-self:end"><button class="btn btn-secondary" id="clearAttendanceFiltersBtn">Clear Filters</button></div>
+              </div>
+              <div class="card-head"><div><h3>Attendance Records</h3><p>Every student attendance entry</p></div><button class="btn btn-secondary" id="exportAttendanceBtn">⇩ Export Attendance CSV</button></div>
+              <div class="table-wrap"><table><thead><tr><th>Date</th><th>Student Name</th><th>Form</th><th>Class</th><th>Subject</th><th>Status</th><th>Reason</th><th>Notes</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="attendanceHistoryBody"></tbody></table></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" id="page-monthly">
+          <div class="page-head"><div><h2>Monthly Fee Records</h2><p>Expected fees and payment progress for active students</p></div><div class="field-inline"><label for="monthlyMonth" style="margin:0">Month</label><input type="month" id="monthlyMonth"></div></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Subjects</th><th>Base Fee</th><th>Additional Charges</th><th>Discounts</th><th>Final Expected</th><th>Amount Paid</th><th>Outstanding</th><th>Status</th><th>Action</th></tr></thead><tbody id="monthlyBody"></tbody></table></div></div>
+        </section>
+
+        <section class="page" id="page-history">
+          <div class="page-head"><div><h2>Payment History</h2><p>Every payment is stored as a separate transaction</p></div><button class="btn btn-secondary" id="exportPaymentsTopBtn">⇩ Export CSV</button></div>
+          <div class="card">
+            <div class="filters">
+              <div><span class="filter-label">Search</span><input id="historySearch" placeholder="Receipt, student or notes"></div>
+              <div><span class="filter-label">Student</span><select id="historyStudent"><option value="all">All students</option></select></div>
+              <div><span class="filter-label">Month</span><select id="historyMonth"><option value="all">All months</option></select></div>
+              <div><span class="filter-label">Year</span><select id="historyYear"><option value="all">All years</option></select></div>
+              <div><span class="filter-label">Method</span><select id="historyMethod"><option value="all">All methods</option><option>Cash</option><option>Bank Transfer</option><option>DuitNow</option><option>Touch ‘n Go</option><option>Other</option></select></div>
+              <div><span class="filter-label">Payment Status</span><select id="historyStatus"><option value="all">All statuses</option><option>Paid</option><option>Partial</option><option>Unpaid</option><option>Voided</option></select></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Receipt Number</th><th>Student Name</th><th>Payment Month</th><th>Payment Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Notes</th><th>Receipt</th><th>Void</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section class="page" id="page-users">
+          <div class="page-head"><div><h2>Users</h2><p>One Owner and one Co-owner share all workspace data</p></div></div>
+          <div class="role-note" id="roleAccessNote">Loading access level…</div>
+          <div class="card" style="margin-top:18px"><div class="card-head"><div><h3>Workspace Members</h3><p>No complex permission switches</p></div></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
+          <div class="card" id="inviteCard" data-owner-only style="margin-top:18px"><div class="card-head"><div><h3>Invite Co-owner</h3><p>Only the configured friend account can be invited</p></div></div><form id="inviteForm" class="card-body"><div class="form-grid"><div><label for="inviteName">Name</label><input id="inviteName" value="Co-owner" maxlength="100"></div><div><label for="inviteEmail">Email</label><input type="email" id="inviteEmail" placeholder="Co-owner email" autocomplete="email" required></div></div><button type="submit" class="btn btn-primary" style="margin-top:14px" id="inviteBtn">Send Invitation</button></form></div>
+        </section>
+
+        <section class="page" id="page-audit">
+          <div class="page-head"><div><h2>Audit Logs</h2><p>Important actions by the Owner and Co-owner</p></div><button class="btn btn-secondary" id="refreshAuditBtn">↻ Refresh</button></div>
+          <div class="card"><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Action</th><th>Record</th><th>Date</th><th>Time</th></tr></thead><tbody id="auditBody"></tbody></table></div></div>
+        </section>
+
+        <section class="page" id="page-settings">
+          <div class="page-head"><div><h2>Settings</h2><p>Receipt identity and payment defaults shared by Owner and Co-owner</p></div></div>
+          <div class="card"><form id="settingsForm"><div class="card-body"><div class="form-grid">
+            <div><label class="required" for="settingTeacherName">Teacher Name</label><input id="settingTeacherName" maxlength="100" required></div>
+            <div><label class="required" for="settingDisplayName">Teacher Display Name</label><input id="settingDisplayName" maxlength="100" required></div>
+            <div class="form-full"><label class="required" for="settingReceiptFooter">Receipt Footer Name</label><input id="settingReceiptFooter" maxlength="160" required></div>
+            <div><label for="settingBankName">Default Bank Name</label><input id="settingBankName" maxlength="100"></div>
+          </div></div><div class="modal-foot"><button type="submit" class="btn btn-primary">Save Settings</button></div></form></div>
+        </section>
+
+        <section class="page" id="page-backup">
+          <div class="page-head"><div><h2>Backup &amp; Data</h2><p>Keep a separate copy of your records regularly</p></div></div>
+          <div class="backup-grid">
+            <div class="card backup-card"><h3>Complete Backup</h3><p>Download students, classes, fee snapshots, payments and attendance as one JSON file.</p><button class="btn btn-primary" id="exportBackupBtn">⇩ Export Backup</button></div>
+            <div class="card backup-card"><h3>Restore Backup</h3><p>Restore records from a previously exported JSON backup. Existing data will be replaced.</p><button class="btn btn-secondary" id="importBackupBtn">⇧ Import Backup</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div>
+            <div class="card backup-card"><h3>Export Student List</h3><p>Download the complete student list in CSV format for spreadsheet use.</p><button class="btn btn-secondary" id="exportStudentsBtn">⇩ Export Student List CSV</button></div>
+            <div class="card backup-card"><h3>Export Payment Records</h3><p>Download every payment transaction and receipt number in CSV format.</p><button class="btn btn-secondary" id="exportPaymentsBtn">⇩ Export Payment Records CSV</button></div>
+            <div class="card backup-card"><h3>Export Attendance</h3><p>Download all attendance records with class and student details in CSV format.</p><button class="btn btn-secondary" id="exportAttendanceBackupBtn">⇩ Export Attendance CSV</button></div>
+            <div class="card backup-card danger-zone form-full" data-owner-only><h3>Clear All Data</h3><p>This permanently removes all students, classes, fee records and attendance from the Workspace.</p><button class="btn btn-danger" id="clearDataBtn">⚠ Clear All Data</button></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="studentModal" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
+    <div class="modal modal-lg"><div class="modal-head"><h3 id="studentModalTitle">Add Student</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <form id="studentForm"><div class="modal-body"><input type="hidden" id="studentId"><div class="form-grid">
+        <div><label class="required" for="studentName">Student Name</label><input id="studentName" maxlength="100" required></div>
+        <div><label for="parentName">Parent Name</label><input id="parentName" maxlength="100"></div>
+        <div><label class="required" for="parentPhone">Parent Phone Number</label><input id="parentPhone" maxlength="30" placeholder="e.g. 0100000000" required></div>
+        <div><label class="required" for="joinDate">Join Date</label><input type="date" id="joinDate" required></div>
+        <div><label class="required" for="studentFormLevel">Form</label><select id="studentFormLevel" required><option value="">Select Form</option><option>Y1</option><option>Y2</option><option>Y3</option><option>Y4</option><option>Y5</option><option>Y6</option><option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option></select></div>
+        <div><label for="studentStatus">Student Status</label><select id="studentStatus"><option>Active</option><option>Inactive</option><option>Stopped</option></select></div>
+        <div class="form-full"><label class="required">Subjects &amp; Monthly Fees</label><div id="subjectRows"></div><button type="button" class="btn btn-secondary btn-sm" id="addSubjectRowBtn">＋ Add Subject</button><div class="total-line">Monthly Total:&nbsp;<span id="studentFeeTotal">RM0.00</span></div></div>
+        <div class="form-full"><label for="studentNotes">Notes</label><textarea id="studentNotes" maxlength="1000"></textarea></div>
+      </div></div><div class="modal-foot"><button type="button" class="btn btn-secondary modal-close">Cancel</button><button type="submit" class="btn btn-primary" id="saveStudentBtn">Save Student</button></div></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="classModal" role="dialog" aria-modal="true" aria-labelledby="classModalTitle">
+    <div class="modal modal-lg"><div class="modal-head"><h3 id="classModalTitle">Add Class</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <form id="classForm"><div class="modal-body"><input type="hidden" id="classId"><div class="form-grid">
+        <div><label class="required" for="className">Class Name</label><input id="className" maxlength="120" required placeholder="e.g. F5 Biology Monday"></div>
+        <div><label class="required" for="classFormLevel">Form</label><select id="classFormLevel" required><option value="">Select Form</option><option>Y1</option><option>Y2</option><option>Y3</option><option>Y4</option><option>Y5</option><option>Y6</option><option>F1</option><option>F2</option><option>F3</option><option>F4</option><option>F5</option></select></div>
+        <div><label class="required" for="classSubject">Subject</label><input id="classSubject" list="subjectOptions" maxlength="80" required></div>
+        <div><label class="required" for="classDay">Day</label><select id="classDay" required><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+        <div><label class="required" for="classStartTime">Start Time</label><input type="time" id="classStartTime" required></div>
+        <div><label class="required" for="classEndTime">End Time</label><input type="time" id="classEndTime" required></div>
+        <div><label class="required" for="classMonthlyFee">Monthly Fee (RM)</label><input type="number" id="classMonthlyFee" min="0.01" step="0.01" required></div>
+        <div><label for="classStatus">Status</label><select id="classStatus"><option>Active</option><option>Inactive</option></select></div>
+        <div class="form-full"><label>Students</label><div class="help" style="margin-bottom:7px">Only active students in the selected Form are listed.</div><div class="student-check-list" id="classStudentList"></div></div>
+        <div class="form-full"><label for="classNotes">Notes</label><textarea id="classNotes" maxlength="1000"></textarea></div>
+      </div></div><div class="modal-foot"><button type="button" class="btn btn-secondary modal-close">Cancel</button><button type="submit" class="btn btn-primary" id="saveClassBtn">Save Class</button></div></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="paymentModal" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle">
+    <div class="modal"><div class="modal-head"><h3 id="paymentModalTitle">Record Payment</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <form id="paymentForm"><div class="modal-body"><input type="hidden" id="paymentStudentId"><input type="hidden" id="paymentEditId"><div class="form-grid">
+        <div><label>Student Name</label><div class="readonly-box" id="paymentStudentName"></div></div>
+        <div><label>Payment Month</label><div class="readonly-box" id="paymentMonthText"></div></div>
+        <div><label>Final Expected Amount</label><div class="readonly-box" id="paymentExpected"></div></div>
+        <div><label>Already Paid</label><div class="readonly-box" id="paymentAlreadyPaid"></div></div>
+        <div class="form-full"><div class="adjustment-summary" id="paymentFeeBreakdown"></div></div>
+        <div><label class="required" for="paymentAmount">New Payment Amount (RM)</label><input type="number" id="paymentAmount" min="0.01" step="0.01" required></div>
+        <div><label class="required" for="paymentDate">Payment Date</label><input type="date" id="paymentDate" required></div>
+        <div><label class="required" for="paymentMethod">Payment Method</label><select id="paymentMethod" required><option>Cash</option><option>Bank Transfer</option><option>DuitNow</option><option>Touch ‘n Go</option><option>Other</option></select></div>
+        <div><label for="paymentLessons">Number of Lessons</label><input type="number" id="paymentLessons" min="1" step="1" placeholder="e.g. 4"></div>
+        <div class="form-full"><label for="paymentDescription">Payment Description / FOR</label><input id="paymentDescription" maxlength="180" placeholder="e.g. 4 Lessons or June tuition fee"></div>
+        <div class="method-details" id="bankFields"><div><label for="paymentBankName">Bank Name</label><input id="paymentBankName" maxlength="100"></div><div><label for="paymentReference">Reference Number</label><input id="paymentReference" maxlength="180"></div><div><label for="paymentTransferDate">Transfer Date</label><input type="date" id="paymentTransferDate"></div></div>
+        <div class="method-details" id="tngFields"><div><label for="paymentTngReference">TNG Reference Number</label><input id="paymentTngReference" maxlength="180"></div><div><label for="paymentTngDate">TNG Payment Date</label><input type="date" id="paymentTngDate"></div></div>
+        <div class="form-full"><label for="paymentNotes">Notes</label><textarea id="paymentNotes" maxlength="1000"></textarea></div>
+      </div></div><div class="modal-foot"><button type="button" class="btn btn-secondary modal-close">Cancel</button><button type="submit" class="btn btn-success" id="savePaymentBtn">Record Payment</button></div></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="adjustmentModal" role="dialog" aria-modal="true" aria-labelledby="adjustmentModalTitle">
+    <div class="modal modal-lg"><div class="modal-head"><h3 id="adjustmentModalTitle">Fee Adjustment</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <div class="modal-body"><input type="hidden" id="adjustmentStudentId"><input type="hidden" id="adjustmentMonthKey"><input type="hidden" id="adjustmentEditId">
+        <div class="adjustment-summary" id="adjustmentFeeSummary"></div>
+        <form id="adjustmentForm"><div class="form-grid">
+          <div><label class="required" for="adjustmentType">Adjustment Type</label><select id="adjustmentType" required><option>Additional Charge</option><option>Discount</option></select></div>
+          <div><label class="required" for="adjustmentDescription">Description</label><select id="adjustmentDescription" required></select></div>
+          <div class="form-full adjustment-other" id="adjustmentOtherWrap"><label class="required" for="adjustmentOther">Other Description</label><input id="adjustmentOther" maxlength="160"></div>
+          <div><label class="required" for="adjustmentAmount">Amount (RM)</label><input type="number" id="adjustmentAmount" min="0.01" step="0.01" required><div class="help">Enter a positive amount only. The system applies + or − automatically.</div></div>
+          <div><label class="required" for="adjustmentDate">Date</label><input type="date" id="adjustmentDate" required></div>
+          <div class="form-full"><label for="adjustmentNotes">Notes</label><textarea id="adjustmentNotes" maxlength="1000"></textarea></div>
+        </div><div class="actions"><button type="submit" class="btn btn-primary" id="saveAdjustmentBtn">Add Adjustment</button><button type="button" class="btn btn-secondary" id="cancelAdjustmentEditBtn" hidden>Cancel Edit</button></div></form>
+        <div class="adjustment-list"><h4>Adjustment History</h4><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Status</th><th>Notes</th><th>Action</th></tr></thead><tbody id="adjustmentHistoryBody"></tbody></table></div></div>
+      </div><div class="modal-foot"><button class="btn btn-secondary modal-close">Close</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="reminderModal" role="dialog" aria-modal="true" aria-labelledby="reminderTitle">
+    <div class="modal"><div class="modal-head"><h3 id="reminderTitle">WhatsApp Reminder</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <div class="modal-body"><label for="reminderMessage">English &amp; 中文 Message</label><textarea class="reminder-text" id="reminderMessage"></textarea><input type="hidden" id="reminderPhone"></div>
+      <div class="modal-foot"><button class="btn btn-secondary modal-close">Close</button><button class="btn btn-secondary" id="copyReminderBtn">▣ Copy Message</button><button class="btn btn-success" id="openWhatsAppBtn">Open WhatsApp</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="receiptModal" role="dialog" aria-modal="true" aria-labelledby="receiptTitle">
+    <div class="modal modal-lg"><div class="modal-head"><h3 id="receiptTitle">Payment Receipt</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <div class="modal-body receipt-modal-scroll" tabindex="0" aria-label="Scrollable receipt preview"><div class="receipt" id="receiptPrintArea"></div></div>
+      <div class="modal-foot"><button class="btn btn-secondary modal-close">Close</button><button class="btn btn-secondary" id="savePdfBtn">⇩ Save as PDF</button><button class="btn btn-primary" id="printReceiptBtn">▣ Print / Reprint Receipt</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="studentHistoryModal" role="dialog" aria-modal="true" aria-labelledby="studentHistoryTitle">
+    <div class="modal modal-lg"><div class="modal-head"><h3 id="studentHistoryTitle">Student Record</h3><button class="icon-btn modal-close" aria-label="Close">✕</button></div>
+      <div class="modal-body">
+        <h3 style="margin-top:0">Attendance Summary</h3><div class="attendance-summary"><div class="summary-box"><strong id="studentAttTotal">0</strong><span>Total Classes</span></div><div class="summary-box"><strong id="studentAttPresent">0</strong><span>Present</span></div><div class="summary-box"><strong id="studentAttAbsent">0</strong><span>Absent</span></div><div class="summary-box"><strong id="studentAttLate">0</strong><span>Late</span></div><div class="summary-box"><strong id="studentAttExcused">0</strong><span>Excused</span></div><div class="summary-box"><strong id="studentAttRate">0%</strong><span>Attendance Rate</span></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Class</th><th>Subject</th><th>Status</th><th>Reason</th><th>Notes</th></tr></thead><tbody id="studentAttendanceHistoryBody"></tbody></table></div>
+        <h3 class="section-title">Tuition Fee Summary</h3><div class="table-wrap"><table><thead><tr><th>Month</th><th>Expected</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody id="studentHistorySummaryBody"></tbody></table></div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-secondary modal-close">Close</button></div>
+    </div>
+  </div>
+
+  <div class="print-area" id="attendancePrintArea"></div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <datalist id="subjectOptions"><option value="Biology"><option value="Chemistry"><option value="Physics"><option value="Science"><option value="Mathematics"><option value="English"><option value="Bahasa Melayu"><option value="Other"></datalist>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
