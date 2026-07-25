@@ -48,6 +48,32 @@ test('final expected amount never drops below zero', () => {
   assert.equal(result, 0);
 });
 
+test('monthly summary uses latest non-voided payments and compares with the previous month', () => {
+  const result = run(`(() => {
+    state = emptyData();
+    state.students = [
+      {id:'s1',studentName:'STUDENT ONE',form:'F3',joinDate:'2026-05-01',status:'Active',subjects:[]},
+      {id:'s2',studentName:'STUDENT TWO',form:'F3',joinDate:'2026-06-01',status:'Active',subjects:[]}
+    ];
+    state.payments = [
+      {id:'p1',studentId:'s1',paymentMonth:5,paymentYear:2026,amount:80,voided:false},
+      {id:'p2',studentId:'s1',paymentMonth:6,paymentYear:2026,amount:100,voided:false},
+      {id:'p3',studentId:'s2',paymentMonth:6,paymentYear:2026,amount:60,voided:false},
+      {id:'p4',studentId:'s2',paymentMonth:6,paymentYear:2026,amount:999,voided:true},
+      {id:'p5',studentId:'s1',paymentMonth:7,paymentYear:2026,amount:120,voided:false}
+    ];
+    return monthlySummarySeries('2026-07',3);
+  })()`);
+  assert.deepEqual(Array.from(result, item => item.key), ['2026-05','2026-06','2026-07']);
+  assert.equal(result[0].collected, 80);
+  assert.equal(result[1].collected, 160);
+  assert.equal(result[1].incomeChange, 80);
+  assert.equal(result[1].students, 2);
+  assert.equal(result[1].studentChange, 1);
+  assert.equal(result[2].collected, 120);
+  assert.equal(result[2].incomeChange, -40);
+});
+
 test('partial and multiple payments keep cumulative totals in each snapshot', () => {
   const result = run(`(() => {
     state = emptyData();

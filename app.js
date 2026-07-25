@@ -117,6 +117,11 @@
       const { year, month } = parseMonthKey(key);
       return `${MONTH_NAMES[month - 1]} ${year}`;
     };
+    function shiftMonthKey(key, offset) {
+      const { year, month } = parseMonthKey(key);
+      const shifted = new Date(Date.UTC(year, month - 1 + offset, 1));
+      return monthKeyFrom(shifted.getUTCMonth() + 1, shifted.getUTCFullYear());
+    }
     const formatDate = (iso) => {
       if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return '—';
       const [year, month, day] = iso.split('-');
@@ -454,6 +459,166 @@
     }
 
     // ---------- Dashboard and monthly fee tables ----------
+    function summaryStudentCount(key) {
+      const selectedMonth = monthIndex(key);
+      const studentIds = new Set(
+        Object.values(state.monthlyRecords)
+          .filter(record => record.monthKey === key && getStudent(record.studentId))
+          .map(record => record.studentId)
+      );
+      state.students.forEach(student => {
+        const joinMonth = (student.joinDate || '').slice(0, 7);
+        if (student.status === 'Active' && joinMonth && monthIndex(joinMonth) <= selectedMonth) studentIds.add(student.id);
+      });
+      return studentIds.size;
+    }
+
+    function monthlySummaryPoint(key) {
+      const { year, month } = parseMonthKey(key);
+      const collected = roundMoney(
+        state.payments
+          .filter(payment => !payment.voided && paymentMonthKey(payment) === key)
+          .reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
+      );
+      return {
+        key,
+        label: monthLabel(key),
+        shortLabel: `${MONTH_NAMES[month - 1].slice(0, 3)} ${String(year).slice(-2)}`,
+        collected,
+        students: summaryStudentCount(key)
+      };
+    }
+
+    function monthlySummarySeries(endKey, count = 12) {
+      return Array.from({ length: count }, (_, index) => shiftMonthKey(endKey, index - count + 1))
+        .map(key => {
+          const current = monthlySummaryPoint(key);
+          const previous = monthlySummaryPoint(shiftMonthKey(key, -1));
+          return {
+            ...current,
+            previousCollected: previous.collected,
+            previousStudents: previous.students,
+            incomeChange: roundMoney(current.collected - previous.collected),
+            studentChange: current.students - previous.students
+          };
+        });
+    }
+
+    const changeTone = value => value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+    const signedCount = value => value > 0 ? `+${value}` : String(value);
+    const signedMoney = value => `${value > 0 ? '+' : value < 0 ? '−' : ''}${money(Math.abs(value))}`;
+    const trendLabel = (incomeChange, studentChange) => {
+      if (incomeChange > 0 || (incomeChange === 0 && studentChange > 0)) return 'Increased';
+      if (incomeChange < 0 || (incomeChange === 0 && studentChange < 0)) return 'Decreased';
+      return 'No change';
+    };
+
+    function drawMonthlySummaryChart(series) {
+      const canvas = document.getElementById('monthlySummaryChart');
+      const container = canvas?.parentElement;
+      if (!canvas || !container) return;
+      const width = Math.max(300, Math.floor(container.clientWidth || 900));
+      const height = width < 600 ? 270 : 330;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.style.height = `${height}px`;
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      context.clearRect(0, 0, width, height);
+
+      const padding = { top: 18, right: 46, bottom: 48, left: width < 600 ? 48 : 64 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const incomeMaxRaw = Math.max(1, ...series.flatMap(item => [item.collected, item.previousCollected]));
+      const incomeStep = Math.max(10, Math.ceil(incomeMaxRaw / 4 / 10) * 10);
+      const incomeMax = incomeStep * 4;
+      const studentMax = Math.max(1, ...series.map(item => item.students));
+
+      context.font = '11px Inter, system-ui, sans-serif';
+      context.lineWidth = 1;
+      context.textBaseline = 'middle';
+      for (let tick = 0; tick <= 4; tick += 1) {
+        const y = padding.top + chartHeight - chartHeight * (tick / 4);
+        context.strokeStyle = '#f0ccdc';
+        context.beginPath();
+        context.moveTo(padding.left, y);
+        context.lineTo(width - padding.right, y);
+        context.stroke();
+        context.fillStyle = '#755d6b';
+        context.textAlign = 'right';
+        context.fillText(`RM${Math.round(incomeStep * tick)}`, padding.left - 8, y);
+        context.textAlign = 'left';
+        context.fillText(String(Math.round(studentMax * tick / 4)), width - padding.right + 8, y);
+      }
+
+      const groupWidth = chartWidth / series.length;
+      const barWidth = Math.max(4, Math.min(14, groupWidth * 0.28));
+      series.forEach((item, index) => {
+        const centerX = padding.left + groupWidth * index + groupWidth / 2;
+        const currentHeight = chartHeight * (item.collected / incomeMax);
+        const previousHeight = chartHeight * (item.previousCollected / incomeMax);
+        context.fillStyle = '#f0b7d0';
+        context.fillRect(centerX - barWidth - 1, padding.top + chartHeight - previousHeight, barWidth, previousHeight);
+        context.fillStyle = '#d96c9d';
+        context.fillRect(centerX + 1, padding.top + chartHeight - currentHeight, barWidth, currentHeight);
+        if (width >= 600 || index % 3 === 0 || index === series.length - 1) {
+          context.fillStyle = '#755d6b';
+          context.textAlign = 'center';
+          context.textBaseline = 'top';
+          context.fillText(item.shortLabel, centerX, padding.top + chartHeight + 12);
+        }
+      });
+
+      context.strokeStyle = '#c76b08';
+      context.fillStyle = '#c76b08';
+      context.lineWidth = 2.5;
+      context.lineJoin = 'round';
+      context.beginPath();
+      series.forEach((item, index) => {
+        const x = padding.left + groupWidth * index + groupWidth / 2;
+        const y = padding.top + chartHeight - chartHeight * (item.students / studentMax);
+        if (index === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      });
+      context.stroke();
+      series.forEach((item, index) => {
+        const x = padding.left + groupWidth * index + groupWidth / 2;
+        const y = padding.top + chartHeight - chartHeight * (item.students / studentMax);
+        context.beginPath();
+        context.arc(x, y, 3.2, 0, Math.PI * 2);
+        context.fill();
+      });
+    }
+
+    function renderMonthlySummary(key) {
+      const series = monthlySummarySeries(key);
+      const latest = series[series.length - 1];
+      const first = series[0];
+      document.getElementById('monthlySummaryPeriod').textContent = `${first.label} – ${latest.label}`;
+      document.getElementById('monthlySummaryHighlights').innerHTML = `
+        <div><span>${esc(latest.label)} Tuition Received</span><strong>${money(latest.collected)}</strong><small>Current cloud payment records</small></div>
+        <div><span>Income vs Previous Month</span><strong class="${changeTone(latest.incomeChange)}">${signedMoney(latest.incomeChange)}</strong><small>Previous: ${money(latest.previousCollected)}</small></div>
+        <div><span>${esc(latest.label)} Students</span><strong>${latest.students}</strong><small class="${changeTone(latest.studentChange)}">${signedCount(latest.studentChange)} compared with previous month</small></div>`;
+      document.getElementById('monthlySummaryBody').innerHTML = series.slice().reverse().map(item => {
+        const trend = trendLabel(item.incomeChange, item.studentChange);
+        return `<tr>
+          <td><strong>${esc(item.label)}</strong></td>
+          <td>${item.students}</td>
+          <td><span class="summary-change ${changeTone(item.studentChange)}">${signedCount(item.studentChange)}</span></td>
+          <td class="money">${money(item.collected)}</td>
+          <td><span class="summary-change ${changeTone(item.incomeChange)}">${signedMoney(item.incomeChange)}</span></td>
+          <td><span class="trend-pill ${changeTone(item.incomeChange || item.studentChange)}">${trend}</span></td>
+        </tr>`;
+      }).join('');
+      const hasData = series.some(item => item.collected > 0 || item.students > 0);
+      document.getElementById('monthlySummaryChartEmpty').hidden = hasData;
+      document.getElementById('monthlySummaryChart').hidden = false;
+      document.getElementById('monthlySummaryChart').setAttribute('aria-label', `Monthly tuition and student trend from ${first.label} to ${latest.label}`);
+      drawMonthlySummaryChart(series);
+    }
+
     function renderDashboard() {
       const key = document.getElementById('dashboardMonth').value || currentMonthKey();
       document.getElementById('studentCountTotal').textContent = state.students.length;
@@ -477,6 +642,7 @@
         <tr><td><button class="name-link" data-student-history="${row.student.id}">${esc(row.student.studentName)}</button></td>
         <td class="subjects">${esc(subjectText(row.record.subjects))}</td><td class="money">${money(row.expected)}</td><td class="money">${money(row.paid)}</td><td class="money">${money(row.balance)}</td>
         <td><span class="badge ${statusClass(row.status)}">${row.status}</span></td><td><div class="actions"><button class="btn btn-primary btn-sm" data-payment="${row.student.id}" data-month="${key}">Record Payment</button><button class="btn btn-secondary btn-sm" data-reminder="${row.student.id}" data-month="${key}">WhatsApp</button></div></td></tr>`).join('') : emptyRow(7, 'No outstanding payments', rows.length ? 'Everyone has paid for this month.' : 'No eligible students for this month.');
+      renderMonthlySummary(key);
       renderAttendanceDashboard(key);
     }
 
@@ -1490,6 +1656,16 @@
 
     document.getElementById('dashboardMonth').addEventListener('change', renderDashboard);
     document.getElementById('monthlyMonth').addEventListener('change', renderMonthly);
+    let monthlySummaryResizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(monthlySummaryResizeTimer);
+      monthlySummaryResizeTimer = setTimeout(() => {
+        if (document.getElementById('page-dashboard').classList.contains('active')) {
+          const key = document.getElementById('dashboardMonth').value || currentMonthKey();
+          drawMonthlySummaryChart(monthlySummarySeries(key));
+        }
+      }, 120);
+    });
     document.getElementById('studentSearch').addEventListener('input', renderStudents);
     document.getElementById('studentStatusFilter').addEventListener('change', renderStudents);
     document.getElementById('classSearch').addEventListener('input', renderClasses);
