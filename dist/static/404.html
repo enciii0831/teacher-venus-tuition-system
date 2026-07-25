@@ -92,6 +92,29 @@
             <div class="stat-card orange"><div class="stat-label">Partial Payment</div><div class="stat-value" id="statPartial">0</div><div class="stat-sub">Partially paid</div></div>
             <div class="stat-card red"><div class="stat-label">Unpaid Students</div><div class="stat-value" id="statUnpaid">0</div><div class="stat-sub">No payment yet</div></div>
           </div>
+          <h3 class="section-title">Monthly Summary</h3>
+          <div class="card monthly-summary-card">
+            <div class="card-head monthly-summary-head">
+              <div><h3>Tuition Collection Trend</h3><p id="monthlySummaryPeriod">Latest 12 months</p></div>
+              <div class="chart-legend" aria-label="Chart legend">
+                <span><i class="legend-swatch current"></i>Tuition Received</span>
+                <span><i class="legend-swatch previous"></i>Previous Month</span>
+                <span><i class="legend-line"></i>Student Count</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="monthly-summary-highlights" id="monthlySummaryHighlights"></div>
+              <div class="monthly-chart-wrap">
+                <canvas id="monthlySummaryChart" role="img" aria-label="Monthly tuition collection and student count trend"></canvas>
+                <div class="chart-empty" id="monthlySummaryChartEmpty" hidden>No payment or student data is available for this period.</div>
+              </div>
+              <p class="monthly-summary-note">Calculated from the latest shared cloud data. Voided payments are excluded.</p>
+            </div>
+          </div>
+          <div class="card monthly-summary-table-card">
+            <div class="card-head"><div><h3>Monthly Comparison Table</h3><p>Student and tuition changes compared with the previous month</p></div></div>
+            <div class="table-wrap"><table class="monthly-summary-table"><thead><tr><th>Month</th><th>Students</th><th>Student Change</th><th>Tuition Received</th><th>Income Change</th><th>Trend</th></tr></thead><tbody id="monthlySummaryBody"></tbody></table></div>
+          </div>
           <div class="card">
             <div class="card-head"><div><h3>Payments Requiring Attention</h3><p>Unpaid and partially paid students</p></div></div>
             <div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Subjects</th><th>Total Fee</th><th>Amount Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody id="dashboardOutstandingBody"></tbody></table></div>

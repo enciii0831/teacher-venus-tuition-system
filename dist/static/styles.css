@@ -185,6 +185,33 @@
     .sample-banner strong { display: block; }
     .sample-banner span { font-size: 13px; color: var(--muted); }
 
+    .monthly-summary-card { margin-bottom: 16px; overflow: hidden; }
+    .monthly-summary-head { align-items: flex-start; }
+    .chart-legend { display:flex; align-items:center; justify-content:flex-end; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:12px; font-weight:700; }
+    .chart-legend span { display:inline-flex; align-items:center; gap:6px; }
+    .legend-swatch { width:11px; height:11px; border-radius:3px; display:inline-block; }
+    .legend-swatch.current { background:#d96c9d; }
+    .legend-swatch.previous { background:#f0b7d0; }
+    .legend-line { width:18px; height:0; border-top:3px solid var(--orange); display:inline-block; }
+    .monthly-summary-highlights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+    .monthly-summary-highlights > div { min-width:0; padding:14px 15px; border:1px solid var(--line); border-radius:13px; background:#fff9fc; }
+    .monthly-summary-highlights span { display:block; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.025em; }
+    .monthly-summary-highlights strong { display:block; margin-top:5px; color:var(--navy-dark); font-size:22px; line-height:1.2; font-variant-numeric:tabular-nums; }
+    .monthly-summary-highlights small { display:block; margin-top:5px; color:var(--muted); font-size:11px; }
+    .monthly-chart-wrap { position:relative; width:100%; min-height:270px; }
+    #monthlySummaryChart { display:block; width:100%; max-width:100%; }
+    .chart-empty { position:absolute; inset:50% auto auto 50%; transform:translate(-50%,-50%); width:min(300px,80%); padding:13px 15px; text-align:center; color:var(--muted); background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:11px; }
+    .monthly-summary-note { margin:8px 0 0; color:var(--muted); font-size:11px; text-align:right; }
+    .monthly-summary-table-card { margin-bottom:22px; }
+    .monthly-summary-table { min-width:720px; }
+    .summary-change { font-weight:850; font-variant-numeric:tabular-nums; }
+    .positive { color:var(--green) !important; }
+    .negative { color:var(--red) !important; }
+    .neutral { color:var(--muted) !important; }
+    .trend-pill { display:inline-flex; padding:5px 9px; border-radius:999px; font-size:11px; font-weight:850; background:#f3edf0; }
+    .trend-pill.positive { background:var(--green-soft); }
+    .trend-pill.negative { background:var(--red-soft); }
+
     .backup-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
     .backup-card { padding: 22px; }
     .backup-card h3 { margin: 0 0 6px; color: var(--navy-dark); }
@@ -343,6 +370,9 @@
       .week-grid { grid-template-columns: 1fr 1fr; }
       .attendance-toolbar { grid-template-columns: 1fr 1fr; }
       .attendance-row { grid-template-columns: 1fr; gap: 9px; }
+      .monthly-summary-highlights { grid-template-columns:1fr; }
+      .chart-legend { justify-content:flex-start; width:100%; }
+      .monthly-summary-card .card-body { padding:16px 12px; }
     }
     @media (max-width: 500px) {
       .stats-grid { gap: 11px; }
