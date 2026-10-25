@@ -32,7 +32,7 @@ export default { async fetch(request) {
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'DENY',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
-    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://sunkovtufoifsvfmqwas.supabase.co wss://sunkovtufoifsvfmqwas.supabase.co; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://qifgncrtrlwskvojbbgu.supabase.co wss://qifgncrtrlwskvojbbgu.supabase.co; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   }});
 }};`;
 

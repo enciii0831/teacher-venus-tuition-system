@@ -1,7 +1,7 @@
 // Public frontend configuration only. Never add service_role or secret keys here.
 window.VENUS_SUPABASE_CONFIG = Object.freeze({
-  SUPABASE_URL: 'https://sunkovtufoifsvfmqwas.supabase.co',
-  SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_NQdtCvo-UhhNl1-3jSL1tQ_j7gJYMbK'
+  SUPABASE_URL: 'https://qifgncrtrlwskvojbbgu.supabase.co',
+  SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_P-FkmZoSlvLTnyDsfZDWCQ_jjLtBopB'
 });
 
 window.createVenusSupabaseClient = function createVenusSupabaseClient() {

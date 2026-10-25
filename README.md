@@ -46,6 +46,19 @@ Repository settings:
 
 All website assets use relative paths, so the repository subdirectory URL works correctly.
 
+## Netlify / Netlify 发布
+
+This same HTML/CSS/JavaScript application can be deployed from the existing GitHub repository without creating a new system.
+
+Netlify settings are included in `netlify.toml`:
+
+- Production branch: `main`
+- Build command: `npm run build`
+- Publish directory: `dist/static`
+- Node.js: 22
+
+After Netlify creates the site, add its final `https://<site-name>.netlify.app/**` address to Supabase **Authentication → URL Configuration → Redirect URLs**. Set the Supabase Site URL to the same Netlify production URL.
+
 ## Updating the website / 更新网页
 
 Edit the source files, run the checks, then commit and push:

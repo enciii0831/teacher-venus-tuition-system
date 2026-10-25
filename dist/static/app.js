@@ -1337,21 +1337,26 @@
       }
       const formatReceiptDate = value => formatDate(value).replaceAll('/',' – ');
       const forText = snapshot.paymentDescription || (snapshot.numberOfLessons ? `${snapshot.numberOfLessons} Lessons` : snapshot.paymentMonth);
-      const adjustmentMarkup = (snapshot.adjustments || []).length ? `<div class="receipt-adjustments"><h4>ADJUSTMENTS</h4>${snapshot.adjustments.map(item => `<div class="receipt-adjustment-row"><span>${esc(item.description)}</span><strong class="${item.type === 'Additional Charge' ? 'money-plus' : 'money-minus'}">${item.type === 'Additional Charge' ? '+' : '−'} ${money(item.amount)}</strong></div>`).join('')}</div>` : '';
+      const adjustmentMarkup = (snapshot.adjustments || []).length ? `<section class="receipt-adjustments"><h4>Adjustments</h4>${snapshot.adjustments.map(item => `<div class="receipt-adjustment-row"><span>${esc(item.description)}</span><strong class="${item.type === 'Additional Charge' ? 'money-plus' : 'money-minus'}">${item.type === 'Additional Charge' ? '+' : '−'} ${money(item.amount)}</strong></div>`).join('')}</section>` : '';
       const bankValue = ['Bank Transfer','DuitNow'].includes(snapshot.paymentMethod) ? [snapshot.bankName,snapshot.referenceNumber,snapshot.transferDate ? `(${formatDate(snapshot.transferDate)})` : ''].filter(Boolean).join(' ') : '';
       const cashValue = snapshot.paymentMethod === 'Cash' ? money(snapshot.amountPaidThisTime) : '';
       const tngValue = snapshot.paymentMethod === 'Touch ‘n Go' ? [snapshot.referenceNumber,snapshot.transferDate ? `(${formatDate(snapshot.transferDate)})` : ''].filter(Boolean).join(' ') : '';
       const otherValue = snapshot.paymentMethod === 'Other' ? `${snapshot.paymentMethod} ${snapshot.referenceNumber || ''}`.trim() : '';
+      const subjectsMarkup = (snapshot.subjects || []).length ? snapshot.subjects.map(subject => `<span>${esc(subject)}</span>`).join('') : '<span>—</span>';
       return `<div class="receipt-frame">
-        <div class="receipt-header"><span>RECEIPT</span><span>RECEIPT NO : ${esc(snapshot.receiptNumber)}</span></div>
-        <table class="receipt-table"><tbody>
-          <tr><th>RECEIVED FROM</th><td>${esc(snapshot.studentName)}</td><th>DATE</th><td>${formatReceiptDate(snapshot.paymentDate)}</td></tr>
-          <tr><th>CONTACT NUMBER</th><td colspan="3">${esc(snapshot.parentContactNumber || '—')}</td></tr>
-          <tr><th>TOTAL (RM)</th><td>${Number(snapshot.amountPaidThisTime || 0).toFixed(2)}</td><th>FOR</th><td>${esc(forText)}</td></tr>
-        </tbody></table>
-        <div class="receipt-main-grid"><div><table class="receipt-table"><tbody><tr><th>MONTH</th><td>${esc(String(snapshot.paymentMonth || '').toUpperCase())}</td></tr><tr><th>SUBJECTS</th><td class="receipt-subjects">${esc((snapshot.subjects || []).join('\n') || '—')}</td></tr></tbody></table>${adjustmentMarkup}</div>
-        <div><table class="receipt-table"><tbody><tr><th>BANK</th><td>${esc(bankValue)}</td></tr><tr><th>CASH</th><td>${esc(cashValue)}</td></tr><tr><th>TNG</th><td>${esc(tngValue)}</td></tr>${otherValue ? `<tr><th>OTHER</th><td>${esc(otherValue)}</td></tr>` : ''}</tbody></table>
-        <div class="receipt-payment-summary"><div><span>Final Expected</span><strong>${money(snapshot.finalExpectedAmount)}</strong></div><div><span>Paid This Time</span><strong>${money(snapshot.amountPaidThisTime)}</strong></div><div><span>Total Paid To Date</span><strong>${money(snapshot.totalPaidToDate)}</strong></div><div><span>Remaining Balance</span><strong>${money(snapshot.remainingBalance)}</strong></div></div></div></div>
+        <header class="receipt-header"><span>RECEIPT</span><span class="receipt-number"><small>RECEIPT NO</small>${esc(snapshot.receiptNumber)}</span></header>
+        <section class="receipt-info-grid">
+          <div class="receipt-field receipt-field-wide"><span>RECEIVED FROM</span><strong>${esc(snapshot.studentName)}</strong></div>
+          <div class="receipt-field"><span>DATE</span><strong>${formatReceiptDate(snapshot.paymentDate)}</strong></div>
+          <div class="receipt-field"><span>CONTACT NUMBER</span><strong>${esc(snapshot.parentContactNumber || '—')}</strong></div>
+          <div class="receipt-field receipt-total"><span>TOTAL (RM)</span><strong>${Number(snapshot.amountPaidThisTime || 0).toFixed(2)}</strong></div>
+          <div class="receipt-field receipt-for"><span>FOR</span><strong>${esc(forText)}</strong></div>
+        </section>
+        <div class="receipt-main-grid">
+          <section class="receipt-section"><div class="receipt-detail-row"><span>MONTH</span><strong>${esc(String(snapshot.paymentMonth || '').toUpperCase())}</strong></div><div class="receipt-detail-row receipt-subject-row"><span>SUBJECTS</span><div class="receipt-subjects">${subjectsMarkup}</div></div>${adjustmentMarkup}</section>
+          <section class="receipt-section"><div class="receipt-methods"><div><span>BANK</span><strong>${esc(bankValue || '—')}</strong></div><div><span>CASH</span><strong>${esc(cashValue || '—')}</strong></div><div><span>TNG</span><strong>${esc(tngValue || '—')}</strong></div>${otherValue ? `<div><span>OTHER</span><strong>${esc(otherValue)}</strong></div>` : ''}</div></section>
+        </div>
+        <div class="receipt-payment-summary"><div><span>Final Expected</span><strong>${money(snapshot.finalExpectedAmount)}</strong></div><div class="receipt-summary-paid"><span>Paid This Time</span><strong>${money(snapshot.amountPaidThisTime)}</strong></div><div><span>Total Paid To Date</span><strong>${money(snapshot.totalPaidToDate)}</strong></div><div class="receipt-summary-balance"><span>Remaining Balance</span><strong>${money(snapshot.remainingBalance)}</strong></div></div>
         <div class="receipt-footer">BY: ${esc(snapshot.receiptFooterName || DEFAULT_SETTINGS.receiptFooterName)}</div>
         ${payment.voided ? '<div class="receipt-void">VOID</div>' : ''}
       </div>`;
